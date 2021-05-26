@@ -15,7 +15,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        src/* \
         main.cpp
+
+INCLUDEPATH += /usr/local/opencv452/include/opencv4/ \
+                /usr/local/opencv452/include/opencv4/opencv2 \
+                include/
+
+LIBS += /usr/local/opencv452/lib/ \
+      ./lib/**  \
 
 TRANSLATIONS += \
     BUG-CV_yue_CN.ts
@@ -24,3 +32,9 @@ TRANSLATIONS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+HEADERS += \
+    include/*
+
+RESOURCES +=   \
+          param_xml/

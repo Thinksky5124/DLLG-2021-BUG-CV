@@ -5,6 +5,9 @@
 
 const enum enemy_color_enum {ENEMY_BLUE,ENEMY_RED};
 
+/**
+ * @brief 
+ */
 class Proposal
 {
 private:

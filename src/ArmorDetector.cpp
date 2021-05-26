@@ -8,7 +8,14 @@ Proposal::Proposal(/* args */)
 Proposal::~Proposal()
 {
 }
-
+/**
+ * @brief 
+ * @param  src              My Param doc
+ * @param  armorDetector    My Param doc
+ * @param  config           My Param doc
+ * @return true 
+ * @return false 
+ */
 bool Proposal::findProposal(const cv::Mat &src,const ArmorDetector &armorDetector,const Config &config){
     cv::Mat image_hsv;
     cv::Mat mask;

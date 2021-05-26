@@ -76,3 +76,6 @@ build/
 
 # vscode
 .vscode/
+
+# debug
+outputVideo.mp4

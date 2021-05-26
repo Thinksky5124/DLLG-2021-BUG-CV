@@ -4,6 +4,7 @@
 #include "serial.h"
 #include "EnergyDetector.h"
 #include "Config.h"
+#include "Logger.h"
 
 #include <iostream>
 #include <thread>
@@ -19,6 +20,7 @@
 
 int main(void){
     Config config = Config("./param_xml/camera_param.xml");
+    initLogger("./Log/info.txt","./Log/warn.txt","./Log/error.txt");
     cv::Mat frame;
     
     //Read data

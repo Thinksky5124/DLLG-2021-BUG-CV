@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-27 16:12:35
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-27 21:14:36
+LastEditTime: 2021-05-27 22:03:25
 Description: proposal ROI python implement
-FilePath: \DLLG-2021-BUG-CV\Python\armor\proposal.py
+FilePath: /DLLG-2021-BUG-CV/Python/armor/proposal.py
 '''
 from typing import Counter
 import cv2
@@ -35,11 +35,17 @@ class proposal_ROIs:
         return lightBars
 
     def findAndfilterContours(self,img):
+        # initial
+        filterContours=[]
+        lightBars_area = int(config.getConfig("proposal", "lightBars_area_threshold"))
         # 找轮廓
         contours, hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         for i in contours:#遍历所有的轮廓
             x,y,w,h = cv2.boundingRect(i)#将轮廓分解为识别对象的左上角坐标和宽、高
-        return contours
+            if h>=w and w*h > lightBars_area:
+                filterContours.append([x,y,w,h])
+        
+        return filterContours
 
     def preImageProcess_hsv(self,img,enermy_color):
         """

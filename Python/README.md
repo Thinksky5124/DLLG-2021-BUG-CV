@@ -12,7 +12,7 @@ conda env create -f RMCVenv.yaml
 
 开发环境导出
 ```shell
-conda env export  >  env.yaml
+conda env export  >  RMCVenv.yaml
 ```
 
 # 代码格式规范

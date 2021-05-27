@@ -23,4 +23,5 @@ dependencies:
   - pip:
     - numpy==1.20.3
     - opencv-python==4.5.2.52
+    - pyyaml==5.4.1
 prefix: /home/wenwujun/anaconda3/envs/RMCV

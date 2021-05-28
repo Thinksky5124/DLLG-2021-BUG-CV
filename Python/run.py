@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-27 21:42:29
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-27 22:06:02
+LastEditTime: 2021-05-28 10:37:58
 Description: run script
 FilePath: /DLLG-2021-BUG-CV/Python/run.py
 '''
@@ -14,7 +14,17 @@ import armor.proposal as proposal
 import logger.logger as logger
 import config.config as config
 
+class color():
+    """
+    enermy color define enum
+    """
+    BLUE = 0
+    RED = 1
+    
 def armorDetetorThread(img,enermy_color):
+    # if enermy_color != color.BLUE and enermy_color != color.RED:
+        # logging.error("error enemy color!Use White default")
+        
     proposal_ROIs = proposal.proposal_ROIs(img,enermy_color)
     for bbox in proposal_ROIs.ROIs:#遍历所有的轮廓
         [x , y, w, h] = bbox

@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-27 21:53:25
+LastEditTime: 2021-05-28 10:37:41
 Description: python implement main script
 FilePath: /DLLG-2021-BUG-CV/Python/main.py
 '''
@@ -11,6 +11,13 @@ import numpy as np
 import logging
 import run
 import logger.logger as logger
+
+class color():
+    """
+    enermy color define enum
+    """
+    BLUE = 0
+    RED = 1
 
 def mian_read_video():
     # 导入数据集
@@ -25,7 +32,7 @@ def mian_read_video():
         success,img=capture.read() # img 就是一帧图片
         if not success:break # 当获取完最后一帧就结束
         # run program
-        img = run.armorDetetorThread(img,0)
+        img = run.armorDetetorThread(img,3)
         video_writer.write(img)
     # 释放空间
     video_writer.release()

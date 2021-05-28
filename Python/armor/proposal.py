@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-27 16:12:35
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-27 22:03:25
+LastEditTime: 2021-05-28 11:05:37
 Description: proposal ROI python implement
 FilePath: /DLLG-2021-BUG-CV/Python/armor/proposal.py
 '''
@@ -19,13 +19,27 @@ class color():
     BLUE = 0
     RED = 1
 
+class Rectangle:
+    def __init__(self,x,y,w,h):
+        self.width=w
+        self.height=h
+        self.centerPont_x,self.centerPont_y = self.centerPoint(x,y,w,h)
+    
+    def centerPoint(self,x,y,w,h):
+        return (x+w)/2,(y+h)/2
+    
+    def getLength(self):
+        return (self.width+self.height)*2
+    
+    def getArea(self):
+        return self.width*self.height
+
+
 class proposal_ROIs:
     """
     summary
     """
     def __init__(self,img,enermy_color):
-        if enermy_color != color.BLUE and enermy_color != color.RED:
-            logging.error("error enemy color!Use White default")
         self.ROIs = self.proposal(img,enermy_color)
     
     def proposal(self,img,enermy_color):
@@ -37,19 +51,40 @@ class proposal_ROIs:
     def findAndfilterContours(self,img):
         # initial
         filterContours=[]
-        lightBars_area = int(config.getConfig("proposal", "lightBars_area_threshold"))
+        lightBars_min_area = int(config.getConfig("proposal", "lightBars_area_min_threshold"))
+        lightBars_max_area = int(config.getConfig("proposal", "lightBars_area_max_threshold"))
         # 找轮廓
         contours, hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         for i in contours:#遍历所有的轮廓
             x,y,w,h = cv2.boundingRect(i)#将轮廓分解为识别对象的左上角坐标和宽、高
-            if h>=w and w*h > lightBars_area:
-                filterContours.append([x,y,w,h])
-        
+            if h>=w and w*h > lightBars_min_area and w*h < lightBars_max_area:
+                filterContours.append(Rectangle(x,y,w,h))
         return filterContours
+
+    def proposal_bbox(self,lightBars):
+        #initilazie param
+        hightDistance_threshold = config.getConfig("proposal", "lightBars_hightDistance")
+        centerDistance_min_threshold = config.getConfig("proposal", "lightBars_centerDistance_min")
+        centerDistance_max_threhold = config.getConfig("proposal", "lightBars_centerDistance_max")
+        lengthRate_min_threhold = config.getConfig("proposal", "lightBars_lengthRate_min")
+        lengthRate_max_threhold = config.getConfig("proposal", "lightBars_lengthRate_max")
+        #filter proposal
+        for i in range(len(lightBars) - 1):
+            for j in range(i+1,len(lightBars)):
+                lightBars_hightDistance = abs(lightBars[i].centerPont_y - lightBars[j].centerPont_y)
+                lightBars_centerDistance = abs(lightBars[i].centerPont_x - lightBars[j].centerPont_x)
+                lightBars_lengthRate = abs(lightBars[i].centerPont_y / lightBars[j].centerPont_y)
+                if lightBars_hightDistance < hightDistance_threshold and \
+                    lightBars_centerDistance > centerDistance_min_threshold and \
+                    lightBars_centerDistance < centerDistance_max_threhold and \
+                    lightBars_lengthRate > lengthRate_min_threhold and \
+                    lightBars_lengthRate < lengthRate_max_threhold :
+                    
+
 
     def preImageProcess_hsv(self,img,enermy_color):
         """
-        proposal use hsv model
+        pre process image ready to extract light bars
 
         Args:
             img (cv::mat): src image

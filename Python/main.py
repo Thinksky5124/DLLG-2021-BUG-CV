@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 10:37:41
+LastEditTime: 2021-05-28 20:25:18
 Description: python implement main script
-FilePath: /DLLG-2021-BUG-CV/Python/main.py
+FilePath: \DLLG-2021-BUG-CV\Python\main.py
 '''
 import cv2
 import numpy as np
@@ -18,9 +18,11 @@ class color():
     """
     BLUE = 0
     RED = 1
+    WHITE = 2
 
 def mian_read_video():
     # 导入数据集
+    global img
     video_path = './DataSet/video/smallDataset.mp4'
     capture = cv2.VideoCapture(video_path)
     # 回显视频
@@ -28,11 +30,19 @@ def mian_read_video():
     size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
     video_writer = cv2.VideoWriter('./Debug/outputVideo.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
 
+    # 统计帧数
+    frameCnt = 1
+
     while capture.isOpened():
         success,img=capture.read() # img 就是一帧图片
         if not success:break # 当获取完最后一帧就结束
+        
+        logging.info("Process "+str(frameCnt)+" frame")
         # run program
-        img = run.armorDetetorThread(img,3)
+        img = run.runThread(color.WHITE)
+        logging.info("Finish Process "+str(frameCnt)+" frame")
+        
+        frameCnt = frameCnt + 1
         video_writer.write(img)
     # 释放空间
     video_writer.release()
@@ -40,10 +50,16 @@ def mian_read_video():
 
 def mian_read_picture():
     for picture_number in range(1,6):
+        global img
         image_path = './DataSet/picture/picture'+str(picture_number)+'.jpg'
         img = cv2.imread(image_path)
+        # 统计图片数
+        frameCnt = 1
+
+        logging.info("Process "+str(frameCnt)+" picture")
         # run program
-        img = run.armorDetetorThread(img,0)
+        img = run.runThread(color.WHITE)
+        logging.info("Finish Process "+str(frameCnt)+" picture")
         
         image_write_path = './Debug/picture'+str(picture_number)+'.jpg'
         cv2.imwrite(image_write_path,img)

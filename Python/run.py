@@ -2,15 +2,17 @@
 Author: Thyssen Wen
 Date: 2021-05-27 21:42:29
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 10:37:58
+LastEditTime: 2021-05-28 20:42:17
 Description: run script
-FilePath: /DLLG-2021-BUG-CV/Python/run.py
+FilePath: \DLLG-2021-BUG-CV\Python\run.py
 '''
 
 import cv2
 import numpy as np
 import logging
+import threading
 import armor.proposal as proposal
+import armor.classify as classify
 import logger.logger as logger
 import config.config as config
 
@@ -20,15 +22,70 @@ class color():
     """
     BLUE = 0
     RED = 1
-    
-def armorDetetorThread(img,enermy_color):
+
+class VisionDetetorThread(threading.Thread):
+    def run(self):
+        self.armorDeteting()
+
+    def armorDeteting(self):
+        while(thread_run_flag):
+            lock=threading.Lock()
+            lock.acquire()
+            image = img
+            lock.release()
+            armorDetetorProcessd()
+
+class ImageGetThread(threading.Thread):
+    def run(self):
+        self.armorDeteting()
+
+    def armorDeteting(self):
+        while(thread_run_flag):
+            lock=threading.Lock()
+            lock.acquire()
+            image = img
+            lock.release()
+            armorDetetorProcessd()
+
+class ShotCommandThread(threading.Thread):
+    def run(self):
+        self.armorDeteting()
+
+    def armorDeteting(self):
+        while(thread_run_flag):
+            lock=threading.Lock()
+            lock.acquire()
+            image = img
+            lock.release()
+            armorDetetorProcessd()
+
+def runThread(enermy_color):
+    detetor_thread = VisionDetetorThread()
+    detetor_thread.start()
+    img = armorDetetorProcessd(image,enermy_color)
+    return img
+
+def armorDeteting(img,enermy_color):
+    classifier = classify.Classifier()
+    proposal_ROIs = proposal.proposal_ROIs(enermy_color)
+
+    armorDetetorProcessd
+
+
+def armorDetetorProcessd(img,Classifier,proposal_ROIs):
     # if enermy_color != color.BLUE and enermy_color != color.RED:
         # logging.error("error enemy color!Use White default")
-        
-    proposal_ROIs = proposal.proposal_ROIs(img,enermy_color)
-    for bbox in proposal_ROIs.ROIs:#遍历所有的轮廓
-        [x , y, w, h] = bbox
-        #在图像上画上矩形（图片、左上角坐标、右下角坐标、颜色、线条宽度）
-        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,),3)
+    ROIs = proposal_ROIs.proposal(img)
+    if len(ROIs) > 1:
+        for bbox in ROIs:#遍历所有的轮廓
+            [x , y, w, h] = bbox.rectangle
+            #在图像上画上矩形（图片、左上角坐标、右下角坐标、颜色、线条宽度）
+            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,),3)
+            ROI_img = img[y:y+h, x:x+w]
+            ROI_img = cv2.cvtColor(ROI_img,cv2.COLOR_BGR2GRAY)
+
+
+    cv2.imshow("img",img)
+    cv2.waitKey(10)
     
     return img

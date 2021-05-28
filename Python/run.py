@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-27 21:42:29
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 20:42:17
+LastEditTime: 2021-05-28 20:47:10
 Description: run script
 FilePath: \DLLG-2021-BUG-CV\Python\run.py
 '''
@@ -10,7 +10,6 @@ FilePath: \DLLG-2021-BUG-CV\Python\run.py
 import cv2
 import numpy as np
 import logging
-import threading
 import armor.proposal as proposal
 import armor.classify as classify
 import logger.logger as logger
@@ -22,48 +21,6 @@ class color():
     """
     BLUE = 0
     RED = 1
-
-class VisionDetetorThread(threading.Thread):
-    def run(self):
-        self.armorDeteting()
-
-    def armorDeteting(self):
-        while(thread_run_flag):
-            lock=threading.Lock()
-            lock.acquire()
-            image = img
-            lock.release()
-            armorDetetorProcessd()
-
-class ImageGetThread(threading.Thread):
-    def run(self):
-        self.armorDeteting()
-
-    def armorDeteting(self):
-        while(thread_run_flag):
-            lock=threading.Lock()
-            lock.acquire()
-            image = img
-            lock.release()
-            armorDetetorProcessd()
-
-class ShotCommandThread(threading.Thread):
-    def run(self):
-        self.armorDeteting()
-
-    def armorDeteting(self):
-        while(thread_run_flag):
-            lock=threading.Lock()
-            lock.acquire()
-            image = img
-            lock.release()
-            armorDetetorProcessd()
-
-def runThread(enermy_color):
-    detetor_thread = VisionDetetorThread()
-    detetor_thread.start()
-    img = armorDetetorProcessd(image,enermy_color)
-    return img
 
 def armorDeteting(img,enermy_color):
     classifier = classify.Classifier()

@@ -2,13 +2,14 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 20:25:18
+LastEditTime: 2021-05-28 20:46:35
 Description: python implement main script
 FilePath: \DLLG-2021-BUG-CV\Python\main.py
 '''
 import cv2
 import numpy as np
 import logging
+import threading
 import run
 import logger.logger as logger
 
@@ -19,6 +20,48 @@ class color():
     BLUE = 0
     RED = 1
     WHITE = 2
+
+class VisionDetetorThread(threading.Thread):
+    def run(self):
+        self.armorDeteting()
+
+    def armorDeteting(self):
+        while(thread_run_flag):
+            lock=threading.Lock()
+            lock.acquire()
+            image = img
+            lock.release()
+            armorDetetorProcessd()
+
+class ImageGetThread(threading.Thread):
+    def run(self):
+        self.armorDeteting()
+
+    def armorDeteting(self):
+        while(thread_run_flag):
+            lock=threading.Lock()
+            lock.acquire()
+            image = img
+            lock.release()
+            armorDetetorProcessd()
+
+class ShotCommandThread(threading.Thread):
+    def run(self):
+        self.armorDeteting()
+
+    def armorDeteting(self):
+        while(thread_run_flag):
+            lock=threading.Lock()
+            lock.acquire()
+            image = img
+            lock.release()
+            armorDetetorProcessd()
+
+def runThread(enermy_color):
+    detetor_thread = VisionDetetorThread()
+    detetor_thread.start()
+    img = armorDetetorProcessd(image,enermy_color)
+    return img
 
 def mian_read_video():
     # 导入数据集
@@ -67,5 +110,5 @@ def mian_read_picture():
 if  __name__ == '__main__':
     logger.init_logging()
     logging.info('Application Start!')
-    mian_read_video()
+    runThread()
     logging.info('Application Finish!')

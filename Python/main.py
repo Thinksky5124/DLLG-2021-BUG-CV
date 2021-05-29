@@ -2,15 +2,16 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 20:46:35
+LastEditTime: 2021-05-29 23:06:21
 Description: python implement main script
-FilePath: \DLLG-2021-BUG-CV\Python\main.py
+FilePath: /DLLG-2021-BUG-CV/Python/main.py
 '''
+from types import ModuleType
 import cv2
 import numpy as np
 import logging
-import threading
-import run
+import ThreadFunction as run
+import multiprocessing
 import logger.logger as logger
 
 class color():
@@ -21,94 +22,116 @@ class color():
     RED = 1
     WHITE = 2
 
-class VisionDetetorThread(threading.Thread):
-    def run(self):
-        self.armorDeteting()
+class getImageModel():
+    fromCamera = 0
+    fromVedio = 1
+    fromImage = 2
 
-    def armorDeteting(self):
-        while(thread_run_flag):
-            lock=threading.Lock()
-            lock.acquire()
-            image = img
-            lock.release()
-            armorDetetorProcessd()
+class recordModel():
+    record = 0
+    no_record = 1
+    
+class runModel():
+    sentry = 0
+    infantry = 1
+    hero = 2
 
-class ImageGetThread(threading.Thread):
-    def run(self):
-        self.armorDeteting()
+class MyProcess(multiprocessing.Process):
+    """
+    mutiProcess base class
 
-    def armorDeteting(self):
-        while(thread_run_flag):
-            lock=threading.Lock()
-            lock.acquire()
-            image = img
-            lock.release()
-            armorDetetorProcessd()
-
-class ShotCommandThread(threading.Thread):
-    def run(self):
-        self.armorDeteting()
-
-    def armorDeteting(self):
-        while(thread_run_flag):
-            lock=threading.Lock()
-            lock.acquire()
-            image = img
-            lock.release()
-            armorDetetorProcessd()
-
-def runThread(enermy_color):
-    detetor_thread = VisionDetetorThread()
-    detetor_thread.start()
-    img = armorDetetorProcessd(image,enermy_color)
-    return img
-
-def mian_read_video():
-    # 导入数据集
-    global img
-    video_path = './DataSet/video/smallDataset.mp4'
-    capture = cv2.VideoCapture(video_path)
-    # 回显视频
-    fps = capture.get(cv2.CAP_PROP_FPS)
-    size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    video_writer = cv2.VideoWriter('./Debug/outputVideo.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
-
-    # 统计帧数
-    frameCnt = 1
-
-    while capture.isOpened():
-        success,img=capture.read() # img 就是一帧图片
-        if not success:break # 当获取完最后一帧就结束
+    Args:
+        multiprocessing (Process): base Process derive
+    """
+    def __init__(self, function, args, name=''):
+        multiprocessing.Process.__init__(self)
+        self.name = name
+        self.function = function
+        self.args = args
         
-        logging.info("Process "+str(frameCnt)+" frame")
-        # run program
-        img = run.runThread(color.WHITE)
-        logging.info("Finish Process "+str(frameCnt)+" frame")
-        
-        frameCnt = frameCnt + 1
-        video_writer.write(img)
-    # 释放空间
-    video_writer.release()
-    capture.release()
+    def run(self):
+        self.function()
 
-def mian_read_picture():
-    for picture_number in range(1,6):
-        global img
-        image_path = './DataSet/picture/picture'+str(picture_number)+'.jpg'
-        img = cv2.imread(image_path)
-        # 统计图片数
-        frameCnt = 1
-
-        logging.info("Process "+str(frameCnt)+" picture")
-        # run program
-        img = run.runThread(color.WHITE)
-        logging.info("Finish Process "+str(frameCnt)+" picture")
-        
-        image_write_path = './Debug/picture'+str(picture_number)+'.jpg'
-        cv2.imwrite(image_write_path,img)
-
-if  __name__ == '__main__':
+def main(getImageModel_args,runModel_args,recordmodel_args):
     logger.init_logging()
     logging.info('Application Start!')
-    runThread()
-    logging.info('Application Finish!')
+    process_list = []
+    
+    if getImageModel_args == getImageModel.fromCamera:
+        getImage = MyProcess(function=run.read_camera,args=[],name='getImageProcess')
+        process_list.append(getImage)
+        logging.info('getImage from camera Process initialzie!')
+    elif getImageModel_args == getImageModel.fromVedio:
+        getImage = MyProcess(function=run.read_video,args=[],name='getImageProcess')
+        process_list.append(getImage)
+        logging.info('getImage from video Process initialzie!')
+    elif getImageModel_args == getImageModel.fromImage:
+        getImage = MyProcess(function=run.read_picture,args=[],name='getImageProcess')
+        process_list.append(getImage)
+        logging.info('getImage from image Process initialzie!')
+    else:
+        logging.error('set getImageModel_args error!')
+        return
+
+    serial = MyProcess(function=run.serial,args=[],name='serialProcess')
+    process_list.append(serial)
+    logging.info('serial process initialzie!')
+    
+    if runModel_args == runModel.infantry:
+        detector = MyProcess(function=run.infantryDetetor,args=[],name='detectorProcess')
+        process_list.append(detector)
+        logging.info('infantry detector Process initialzie!')
+    elif runModel_args == runModel.sentry:
+        detector = MyProcess(function=run.sentryDetetor,args=[],name='detectorProcess')
+        process_list.append(detector)
+        logging.info('sentry detector Process initialzie!')
+    elif runModel_args == runModel.hero:
+        detector = MyProcess(function=run.heroDetetor,args=[],name='detectorProcess')
+        process_list.append(detector)
+        logging.info('hero detector Process initialzie!')
+    else:
+        logging.error('set runModel_args error!')
+        return
+    
+    if recordmodel_args == recordModel.no_record:
+        logging.info('No recored!')
+        pass
+    elif recordmodel_args == recordModel.record:
+        recorder = MyProcess(function=run.record,args=[],name='recorderProcess')
+        process_list.append(recorder)
+        logging.info('recorder Process Process initialzie!')
+    else:
+        logging.error('set recordmodel_args error!')
+        return
+
+    for process in process_list:
+        # ! Set up daemon
+        process.setDaemon(True) 
+        # ! Process start
+        process.start()
+        logging.info(process.name+' Start!')
+    
+    # ! Process exit manager
+    try:
+        while True:
+            key_num = cv2.waitKey(500)
+            if chr(key_num) == 'q':
+                logging.warning('Application press key to Exit!')
+                # TODOs: use message to kill process
+                process_exit_flag = True
+                for process in process_list:
+                    process.join()
+                    logging.info(process.name+' Exit!')
+                logging.info('Application Exit!')
+    except KeyboardInterrupt:
+        logging.warning('Application kill Exit!')
+        print('Application kill Exit!')
+        
+    
+
+if  __name__ == '__main__':
+    Getmodel_args = getImageModel.fromVedio
+    Runmodel_args = runModel.infantry
+    Recordmodel_args = recordModel.no_record
+    main(getImageModel_args = Getmodel_args,runModel_args = Runmodel_args,recordmodel_args = Recordmodel_args)
+    

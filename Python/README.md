@@ -8,11 +8,13 @@ RoboMaster2021大连理工大学凌BUG战队视觉代码 Python实现
 开发环境安装
 ```shell
 conda env create -f RMCVenv.yaml
+pip install -r requirement.txt
 ```
 
 开发环境导出
 ```shell
 conda env export  >  RMCVenv.yaml
+pip freeze > requirement.txt
 ```
 
 # 代码格式规范

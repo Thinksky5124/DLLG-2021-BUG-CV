@@ -9,14 +9,14 @@ handlers:
     level: INFO
     formatter: simple
   file:
-    class: logging.handlers.TimedRotatingFileHandler
+    class: cloghandler.ConcurrentRotatingFileHandler
     filename: ./Debug/logs/running.log
     level: INFO
     formatter: simple
     encoding: UTF-8
-    when: d
-    interval: 1
-    backupCount: 30
+    maxBytes: 1024 * 1024 * 10
+    delay: True
+    backupCount: 50
 root:
   level: INFO
   handlers: [file]

@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-28 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 19:49:36
+LastEditTime: 2021-05-29 10:37:59
 Description: python implement small classification model
-FilePath: \DLLG-2021-BUG-CV\Python\armor\classify.py
+FilePath: /DLLG-2021-BUG-CV/Python/armor/classify.py
 '''
 import cv2
 import numpy as np
@@ -21,19 +21,19 @@ from torchvision import datasets
 
 class Classifier():
     def __init__(self):
-        learning_rate = float(config.getConfig("classify", "learning_rate"))
-        momentum = float(config.getConfig("classify", "momentum"))
-        weight_save_path = config.getConfig("classify", "weight_save_path")
-
+        self.weight_save_path = config.getConfig("classify", "weight_save_path")
         self.Network = Net()
         logging.info("Initialize classifier success!")
-        if os.path.exists(weight_save_path):
+
+        if os.path.exists(self.weight_save_path):
             logging.info("load networ weight success!")
             net = Net()
-            net.load_state_dict(torch.load(weight_save_path))
+            net.load_state_dict(torch.load(self.weight_save_path))
         else:
+            self.learning_rate = float(config.getConfig("classify", "learning_rate"))
+            self.momentum = float(config.getConfig("classify", "momentum"))
             self.criterion = nn.CrossEntropyLoss()
-            self.optimizer = optim.SGD(self.Network.parameters(), lr=learning_rate, momentum=momentum)
+            self.optimizer = optim.SGD(self.Network.parameters(), lr=self.learning_rate, momentum=self.momentum)
 
     def train(self):
         epoches = int(config.getConfig("classify", "epoches"))
@@ -77,8 +77,8 @@ class Classifier():
         torch.save(self.Network.state_dict(), weight_save_path)
     
     def predict(self,img):
-        weight_save_path = config.getConfig("classify", "weight_save_path")
-        self.Network.load_state_dict(torch.load(weight_save_path))
+        
+        self.Network.load_state_dict(torch.load(self.weight_save_path))
         testdata = torch.from_numpy(img)
         testdata = testdata.unsqueeze(0).unsqueeze(0)
         testdata = testdata.to(torch.float32)

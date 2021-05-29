@@ -1,0 +1,9 @@
+certifi==2020.12.5
+ConcurrentLogHandler==0.9.1
+numpy==1.20.3
+opencv-python==4.5.2.52
+Pillow==8.2.0
+PyYAML==5.4.1
+torch==1.8.1
+torchvision==0.9.1
+typing-extensions==3.10.0.0

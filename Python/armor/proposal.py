@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-27 16:12:35
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 20:02:47
+LastEditTime: 2021-05-29 10:36:11
 Description: proposal ROI python implement
-FilePath: \DLLG-2021-BUG-CV\Python\armor\proposal.py
+FilePath: /DLLG-2021-BUG-CV/Python/armor/proposal.py
 '''
 
 import cv2
@@ -62,11 +62,41 @@ class proposal_ROIs:
     """
     def __init__(self,enermy_color):
         self.enermy_color = enermy_color
+        self.nms_threshold = float(config.getConfig("proposal", "nms_threshold"))
+        self.lightBars_min_area = int(config.getConfig("proposal", "lightBars_area_min_threshold"))
+        self.lightBars_max_area = int(config.getConfig("proposal", "lightBars_area_max_threshold"))
+        self.hightDistance_threshold = float(config.getConfig("proposal", "lightBars_hightDistance"))
+        self.centerDistance_min_threshold = float(config.getConfig("proposal", "lightBars_centerDistance_min"))
+        self.centerDistance_max_threhold = float(config.getConfig("proposal", "lightBars_centerDistance_max"))
+        self.lengthRate_min_threhold = float(config.getConfig("proposal", "lightBars_lengthRate_min"))
+        self.lengthRate_max_threhold = float(config.getConfig("proposal", "lightBars_lengthRate_max"))
+        if self.enermy_color == color.BLUE:
+            blue_hmin = int(config.getConfig("proposal", "hsv_blue_hmin"))
+            blue_hmax = int(config.getConfig("proposal", "hsv_blue_hmax"))
+            blue_smin = int(config.getConfig("proposal", "hsv_blue_smin"))
+            blue_smax = int(config.getConfig("proposal", "hsv_blue_smax"))
+            blue_vmin = int(config.getConfig("proposal", "hsv_blue_vmin"))
+            blue_vmax = int(config.getConfig("proposal", "hsv_blue_vmax"))
+            self.Lower = np.array([blue_hmin, blue_smin, blue_vmin])#要识别颜色的下限
+            self.Upper = np.array([blue_hmax, blue_smax, blue_vmax])#要识别的颜色的上限
+            self.binary_threshold = config.getConfig("proposal", "blue_binary_threshold")
+        elif self.enermy_color == color.RED:
+            red_hmin = int(config.getConfig("proposal", "hsv_red_hmin"))
+            red_hmax = int(config.getConfig("proposal", "hsv_red_hmax"))
+            red_smin = int(config.getConfig("proposal", "hsv_red_smin"))
+            red_smax = int(config.getConfig("proposal", "hsv_red_smax"))
+            red_vmin = int(config.getConfig("proposal", "hsv_red_vmin"))
+            red_vmax = int(config.getConfig("proposal", "hsv_red_vmax"))
+            self.Lower = np.array([red_hmin, red_smin, red_vmin])#要识别颜色的下限
+            self.Upper = np.array([red_hmax, red_smax, red_vmax])#要识别的颜色的上限
+            self.binary_threshold = config.getConfig("proposal", "red_binary_threshold")
+        else:
+            self.Lower = np.array([0, 0, 221])#要识别颜色的下限
+            self.Upper = np.array([180, 30, 255])#要识别的颜色的上限
     
     def proposal(self,img):
         # initialize param
         ROIs_nms = []
-        nms_threshold = float(config.getConfig("proposal", "nms_threshold"))
         
         # process
         processImage = self.preImageProcess_hsv(img,self.enermy_color)
@@ -79,7 +109,7 @@ class proposal_ROIs:
             # nms process
             # if len(ROIs_nms) >= 2:
             #     logging.info("Start nms to reduce armor bbox")
-            #     ROIs_nms = self.non_max_suppress(ROIs_nms,nms_threshold)
+            #     ROIs_nms = self.non_max_suppress(ROIs_nms,self.nms_threshold)
             #     logging.info("remain "+str(len(ROIs_nms))+" ROIs after nms")
         
         return ROIs_nms
@@ -87,40 +117,35 @@ class proposal_ROIs:
     def findAndfilterContours(self,img):
         # initial
         filterContours=[]
-        lightBars_min_area = int(config.getConfig("proposal", "lightBars_area_min_threshold"))
-        lightBars_max_area = int(config.getConfig("proposal", "lightBars_area_max_threshold"))
+
         # 找轮廓
-        contours, hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         for i in contours:#遍历所有的轮廓
             x,y,w,h,angle = cv2.minAreaRect(i)#将轮廓分解为识别对象的左上角坐标和宽、高
-            if h>=w and w*h > lightBars_min_area and w*h < lightBars_max_area:
+            if h>=w and w*h > self.lightBars_min_area and w*h < self.lightBars_max_area:
                 filterContours.append(RotateRectangle(x,y,w,h,angle))
         return filterContours
 
     def proposal_bbox(self,lightBars):
         #initilazie param
-        hightDistance_threshold = float(config.getConfig("proposal", "lightBars_hightDistance"))
-        centerDistance_min_threshold = float(config.getConfig("proposal", "lightBars_centerDistance_min"))
-        centerDistance_max_threhold = float(config.getConfig("proposal", "lightBars_centerDistance_max"))
-        lengthRate_min_threhold = float(config.getConfig("proposal", "lightBars_lengthRate_min"))
-        lengthRate_max_threhold = float(config.getConfig("proposal", "lightBars_lengthRate_max"))
         proposal_bbox = []
+
         #filter proposal
         for i in range(len(lightBars) - 1):
             for j in range(i+1,len(lightBars)):
                 lightBars_hightDistance = abs(lightBars[i].centerPoint_y - lightBars[j].centerPoint_y)
                 lightBars_centerDistance = abs(lightBars[i].centerPoint_x - lightBars[j].centerPoint_x)
                 lightBars_lengthRate = abs(lightBars[i].centerPoint_y / lightBars[j].centerPoint_y)
-                if lightBars_hightDistance < hightDistance_threshold and \
-                    lightBars_centerDistance > centerDistance_min_threshold and \
-                    lightBars_centerDistance < centerDistance_max_threhold and \
-                    lightBars_lengthRate > lengthRate_min_threhold and \
-                    lightBars_lengthRate < lengthRate_max_threhold :
+                if lightBars_hightDistance < self.hightDistance_threshold and \
+                    lightBars_centerDistance > self.centerDistance_min_threshold and \
+                    lightBars_centerDistance < self.centerDistance_max_threhold and \
+                    lightBars_lengthRate > self.lengthRate_min_threhold and \
+                    lightBars_lengthRate < self.lengthRate_max_threhold :
                     proposal_bbox.append(Armor_bbox(lightBars[i],lightBars[j]))
         return proposal_bbox
 
 
-    def preImageProcess_hsv(self,img,enermy_color):
+    def preImageProcess_hsv(self,img):
         """
         pre process image ready to extract light bars
 
@@ -136,28 +161,7 @@ class proposal_ROIs:
         # 图片预处理
         hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
         # 分离颜色
-        if enermy_color == color.BLUE:
-            blue_hmin = int(config.getConfig("proposal", "hsv_blue_hmin"))
-            blue_hmax = int(config.getConfig("proposal", "hsv_blue_hmax"))
-            blue_smin = int(config.getConfig("proposal", "hsv_blue_smin"))
-            blue_smax = int(config.getConfig("proposal", "hsv_blue_smax"))
-            blue_vmin = int(config.getConfig("proposal", "hsv_blue_vmin"))
-            blue_vmax = int(config.getConfig("proposal", "hsv_blue_vmax"))
-            Lower = np.array([blue_hmin, blue_smin, blue_vmin])#要识别颜色的下限
-            Upper = np.array([blue_hmax, blue_smax, blue_vmax])#要识别的颜色的上限
-        elif enermy_color == color.RED:
-            red_hmin = int(config.getConfig("proposal", "hsv_red_hmin"))
-            red_hmax = int(config.getConfig("proposal", "hsv_red_hmax"))
-            red_smin = int(config.getConfig("proposal", "hsv_red_smin"))
-            red_smax = int(config.getConfig("proposal", "hsv_red_smax"))
-            red_vmin = int(config.getConfig("proposal", "hsv_red_vmin"))
-            red_vmax = int(config.getConfig("proposal", "hsv_red_vmax"))
-            Lower = np.array([red_hmin, red_smin, red_vmin])#要识别颜色的下限
-            Upper = np.array([red_hmax, red_smax, red_vmax])#要识别的颜色的上限
-        else:
-            Lower = np.array([0, 0, 221])#要识别颜色的下限
-            Upper = np.array([180, 30, 255])#要识别的颜色的上限
-        mask = cv2.inRange(hsv, Lower, Upper)
+        mask = cv2.inRange(hsv, self.Lower, self.Upper)
         
         # 二值化
         ret,binary = cv2.threshold(mask,0,255,cv2.THRESH_BINARY)
@@ -170,22 +174,20 @@ class proposal_ROIs:
         
         return erosion
 
-    def preImageProcess_rgb(self,img,enermy_color):
+    def preImageProcess_rgb(self,img):
         # 初始化
         kernel = np.ones((3,5),np.uint8)
         # 分离颜色
-        if enermy_color == color.BLUE:
+        if self.enermy_color == color.BLUE:
             color_channel = img[...,0]
-            binary_threshold = config.getConfig("proposal", "blue_binary_threshold")
-        elif enermy_color == color.RED:
+        elif self.enermy_color == color.RED:
             color_channel = img[...,1]
-            binary_threshold = config.getConfig("proposal", "red_binary_threshold")
         else:
             color_channel = img[...,0]
             logging.error("error enemy color!Use BLUE default")
         
         # 二值化
-        ret,binary = cv2.threshold(color_channel,int(binary_threshold),255,cv2.THRESH_BINARY)
+        ret,binary = cv2.threshold(color_channel,int(self.binary_threshold),255,cv2.THRESH_BINARY)
 
         # 开闭操作
         erosion = cv2.erode(binary,kernel)

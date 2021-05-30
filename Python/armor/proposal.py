@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-27 16:12:35
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-29 10:36:11
+LastEditTime: 2021-05-30 13:57:20
 Description: proposal ROI python implement
 FilePath: /DLLG-2021-BUG-CV/Python/armor/proposal.py
 '''
@@ -19,13 +19,12 @@ class color():
     BLUE = 0
     RED = 1
 
-class RotateRectangle:
-    def __init__(self,x,y,w,h,angle):
+class Rectangle:
+    def __init__(self,x,y,w,h):
         self.width=w
         self.height=h
         self.x = x
         self.y = y
-        self.angle = angle
         self.centerPoint_x,self.centerPoint_y = self.centerPoint(x,y,w,h)
         self.rectangle = [self.x,self.y,self.width,self.height]
     
@@ -36,11 +35,12 @@ class RotateRectangle:
         return self.width*self.height
 
 class Armor_bbox:
-    def __init__(self,Rectangle_a,Rectangle_b):
+    def __init__(self,Rectangle_a,Rectangle_b,armorType):
         armor_bbox_size_param = float(config.getConfig("proposal", "armor_bbox_size_param"))
         image_height = int(config.getConfig("image_size", "image_height"))
         additional_length = int(armor_bbox_size_param*max(Rectangle_a.height,Rectangle_b.height))
 
+        self.armorType = armorType
         self.centerPoint_x = (Rectangle_a.centerPoint_x + Rectangle_b.centerPoint_x)//2
         self.centerPoint_y = (Rectangle_a.centerPoint_y + Rectangle_b.centerPoint_y)//2
         self.x = min(Rectangle_a.centerPoint_x,Rectangle_b.centerPoint_x)
@@ -99,7 +99,7 @@ class proposal_ROIs:
         ROIs_nms = []
         
         # process
-        processImage = self.preImageProcess_hsv(img,self.enermy_color)
+        processImage = self.preImageProcess_hsv(img)
         logging.info("pre Process Image using hsv color space success!")
         lightBars = self.findAndfilterContours(processImage)
         logging.info("find "+str(len(lightBars))+" lightBars in current frame")
@@ -107,10 +107,10 @@ class proposal_ROIs:
             ROIs_nms = self.proposal_bbox(lightBars)
             logging.info("find "+str(len(ROIs_nms))+" ROIs in current frame")
             # nms process
-            # if len(ROIs_nms) >= 2:
-            #     logging.info("Start nms to reduce armor bbox")
-            #     ROIs_nms = self.non_max_suppress(ROIs_nms,self.nms_threshold)
-            #     logging.info("remain "+str(len(ROIs_nms))+" ROIs after nms")
+            if len(ROIs_nms) >= 2:
+                logging.info("Start nms to reduce armor bbox")
+                ROIs_nms = self.non_max_suppress(ROIs_nms,self.nms_threshold)
+                logging.info("remain "+str(len(ROIs_nms))+" ROIs after nms")
         
         return ROIs_nms
 
@@ -121,9 +121,9 @@ class proposal_ROIs:
         # 找轮廓
         contours, _ = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         for i in contours:#遍历所有的轮廓
-            x,y,w,h,angle = cv2.minAreaRect(i)#将轮廓分解为识别对象的左上角坐标和宽、高
+            x,y,w,h = cv2.boundingRect(i)#将轮廓分解为识别对象的左上角坐标和宽、高
             if h>=w and w*h > self.lightBars_min_area and w*h < self.lightBars_max_area:
-                filterContours.append(RotateRectangle(x,y,w,h,angle))
+                filterContours.append(Rectangle(x,y,w,h))
         return filterContours
 
     def proposal_bbox(self,lightBars):
@@ -141,7 +141,7 @@ class proposal_ROIs:
                     lightBars_centerDistance < self.centerDistance_max_threhold and \
                     lightBars_lengthRate > self.lengthRate_min_threhold and \
                     lightBars_lengthRate < self.lengthRate_max_threhold :
-                    proposal_bbox.append(Armor_bbox(lightBars[i],lightBars[j]))
+                    proposal_bbox.append(Armor_bbox(lightBars[i],lightBars[j],0))
         return proposal_bbox
 
 

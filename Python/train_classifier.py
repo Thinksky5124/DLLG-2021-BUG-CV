@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-28 19:18:51
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-28 19:48:52
+LastEditTime: 2021-05-30 12:14:53
 Description: train classifier script
-FilePath: \DLLG-2021-BUG-CV\Python\train_classifier.py
+FilePath: /DLLG-2021-BUG-CV/Python/train_classifier.py
 '''
 import cv2
 import numpy as np
@@ -26,7 +26,8 @@ if  __name__ == '__main__':
     img = cv2.imread("./DataSet/Classifier_testset/test1.png")
     img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-    predicted = classifier.predict(img)
+    classifier_trained = classify.Classifier()
+    predicted = classifier_trained.predict(img)
     print('Predicted: ', ' '.join('%5s' % classes[predicted]))
     
     logging.info('Networ Train Finish!')

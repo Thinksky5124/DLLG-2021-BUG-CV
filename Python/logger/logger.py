@@ -10,6 +10,7 @@ import logging
 import os
 import yaml
 from logging import config
+import cloghandler
 
 def init_logging():
     """

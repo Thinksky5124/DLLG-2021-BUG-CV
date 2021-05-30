@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-28 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-29 10:37:59
+LastEditTime: 2021-05-30 14:26:44
 Description: python implement small classification model
 FilePath: /DLLG-2021-BUG-CV/Python/armor/classify.py
 '''
@@ -27,9 +27,10 @@ class Classifier():
 
         if os.path.exists(self.weight_save_path):
             logging.info("load networ weight success!")
-            net = Net()
-            net.load_state_dict(torch.load(self.weight_save_path))
+            self.Network = Net()
+            self.Network.load_state_dict(torch.load(self.weight_save_path))
         else:
+            logging.warning('no load networ weight! Please check train classifier!')
             self.learning_rate = float(config.getConfig("classify", "learning_rate"))
             self.momentum = float(config.getConfig("classify", "momentum"))
             self.criterion = nn.CrossEntropyLoss()
@@ -75,17 +76,48 @@ class Classifier():
         print('Finished Training')
 
         torch.save(self.Network.state_dict(), weight_save_path)
-    
-    def predict(self,img):
-        
-        self.Network.load_state_dict(torch.load(self.weight_save_path))
+
+    def predictProb(self,img):
         testdata = torch.from_numpy(img)
         testdata = testdata.unsqueeze(0).unsqueeze(0)
         testdata = testdata.to(torch.float32)
 
         output = self.Network(testdata)
-        _, predicted = torch.max(output, 1)
+        return output
+    
+    def predict(self,img):
+        """
+        predict singal image and return predict class number
+
+        Args:
+            img (ndarray): image ready to predict
+
+        Returns:
+            int: predict class number
+        """
+        _, predicted = torch.max(self.predictProb(img), 1)
         return predicted
+    
+    def predicts(self,imgs):
+        """
+        predict multi images
+        return max prob image number in list and predict class number
+
+        Args:
+            imgs (list): list of predicted images
+
+        Returns:
+            int: max prob image number in list
+            int: predict class number
+            float: predict prob
+        """
+        predicteds = []
+        for img in imgs:
+            predicteds.append(self.predictProb(img))
+        values, class_indexes = torch.max(predicteds, 1)
+        _, image_index = torch.max(values, 1)
+        logging.info('predict sucess and extract the best prob bbox')
+        return image_index,class_indexes[image_index],values[image_index]
 
 class Net(nn.Module):
     def __init__(self):

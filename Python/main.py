@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-30 13:17:04
+LastEditTime: 2021-05-31 18:41:08
 Description: python implement main script
-FilePath: /DLLG-2021-BUG-CV/Python/main.py
+FilePath: \DLLG-2021-BUG-CV\Python\main.py
 '''
 from types import ModuleType
 import cv2
@@ -41,6 +41,7 @@ if  __name__ == '__main__':
     CodeStatus_args = codeStatus.debug
     
     # application run
+    # ! watch up and change logging file config if change operater systerm 
     logger.init_logging()
     if CodeStatus_args == codeStatus.release:
         logging.info('application set in release model(multiProcess)!')

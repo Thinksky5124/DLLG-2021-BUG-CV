@@ -8,7 +8,7 @@ handlers:
     class: logging.StreamHandler
     level: INFO
     formatter: simple
-  file:
+  file_linux:
     class: cloghandler.ConcurrentRotatingFileHandler
     filename: ./Debug/logs/running.log
     level: INFO
@@ -17,6 +17,15 @@ handlers:
     maxBytes: 10485760
     delay: True
     backupCount: 50
+  file_windows:
+    class: logging.handlers.TimedRotatingFileHandler
+    filename: ./Debug/logs/running.log
+    level: INFO
+    formatter: simple
+    encoding: UTF-8
+    when: d
+    interval: 1
+    backupCount: 30
 root:
   level: INFO
-  handlers: [file]
+  handlers: [file_windows]

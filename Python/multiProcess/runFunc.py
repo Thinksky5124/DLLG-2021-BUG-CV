@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-27 21:42:29
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-30 15:50:25
+LastEditTime: 2021-05-31 18:41:42
 Description: run singal process script
-FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/runFunc.py
+FilePath: \DLLG-2021-BUG-CV\Python\multiProcess\runFunc.py
 '''
 
 import cv2
@@ -88,7 +88,9 @@ class sentryDetetor():
 
 class infantryDetetor():
     def __init__(self):
-        self.enermy_color = color.BLUE
+        # ! must modify
+        # self.enermy_color = color.BLUE
+        self.enermy_color = 2
         self.classifier = classify.Classifier()
         self.hitModel = hitModel.armor
         self.hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
@@ -127,7 +129,7 @@ def armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres):
         for bbox in ROIs:
             [x , y, w, h] = bbox.rectangle
             # draw rectangle in show image
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,),2)
+            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,),1)
             # crop ROI from image
             ROI_img = img[y:y+h, x:x+w]
             ROI_img = cv2.cvtColor(ROI_img,cv2.COLOR_BGR2GRAY)
@@ -140,7 +142,7 @@ def armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres):
             [x , y, w, h] = armor_hit.rectangle
             # draw rectangle in show image
             cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,),2)
-            cv2.putText(img,'armor_type:'+str(armor_hit.armorType),(x,y),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+            cv2.putText(img,'armor_type:'+str(armor_hit.armorType),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
             # shot.angleSlove(armor_hit)
     
     return img
@@ -182,8 +184,11 @@ def read_video(runModel_args,recordmodel_args):
         end = time.time()
         # Time elapsed
         seconds = end - start
-        fps = 1 / seconds
-        cv2.putText(show_img,'fps:'+str(fps),(600,0),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        if seconds > 0:
+            fps = int(1 / seconds)
+        else:
+            fps = 100
+        cv2.putText(show_img,'fps:'+str(fps),(550,15),cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 
         # cv2.imshow("show_img",show_img)
         # cv2.waitKey(10)

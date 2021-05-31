@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-28 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-31 15:21:57
+LastEditTime: 2021-05-31 18:27:05
 Description: python implement small classification model
-FilePath: /DLLG-2021-BUG-CV/Python/armor/classify.py
+FilePath: \DLLG-2021-BUG-CV\Python\armor\classify.py
 '''
 import cv2
 import numpy as np
@@ -77,6 +77,16 @@ class Classifier():
         print('Finished Training')
 
         torch.save(self.Network.state_dict(), weight_save_path)
+
+    def collectingDataset(self,imgs):
+        save_number = 1
+        train_set_root = config.getConfig("classify", "train_set_root")
+        for img in imgs:
+            img = cv2.resize(img, (self.image_size,self.image_size), interpolation = cv2.INTER_AREA)
+            while os.path.exists(train_set_root+'/unclassify/'+str(save_number)+'.jpg'):
+                save_number = save_number + 1
+            cv2.imwrite(train_set_root+'/unclassify/'+str(save_number)+'.jpg',img)
+            save_number = save_number + 1
 
     def predictProb(self,img):
         img = cv2.resize(img, (self.image_size,self.image_size), interpolation = cv2.INTER_AREA)

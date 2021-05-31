@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-27 16:12:35
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-31 11:24:48
+LastEditTime: 2021-05-31 18:42:09
 Description: proposal ROI python implement
-FilePath: /DLLG-2021-BUG-CV/Python/armor/proposal.py
+FilePath: \DLLG-2021-BUG-CV\Python\armor\proposal.py
 '''
 
 import cv2

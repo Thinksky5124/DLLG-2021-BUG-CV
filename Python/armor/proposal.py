@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-27 16:12:35
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-30 13:57:20
+LastEditTime: 2021-05-31 11:24:48
 Description: proposal ROI python implement
 FilePath: /DLLG-2021-BUG-CV/Python/armor/proposal.py
 '''

@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-28 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-30 14:26:44
+LastEditTime: 2021-05-31 15:21:57
 Description: python implement small classification model
 FilePath: /DLLG-2021-BUG-CV/Python/armor/classify.py
 '''
@@ -22,6 +22,7 @@ from torchvision import datasets
 class Classifier():
     def __init__(self):
         self.weight_save_path = config.getConfig("classify", "weight_save_path")
+        self.image_size = int(config.getConfig("classify", "image_size"))
         self.Network = Net()
         logging.info("Initialize classifier success!")
 
@@ -78,6 +79,7 @@ class Classifier():
         torch.save(self.Network.state_dict(), weight_save_path)
 
     def predictProb(self,img):
+        img = cv2.resize(img, (self.image_size,self.image_size), interpolation = cv2.INTER_AREA)
         testdata = torch.from_numpy(img)
         testdata = testdata.unsqueeze(0).unsqueeze(0)
         testdata = testdata.to(torch.float32)
@@ -114,10 +116,11 @@ class Classifier():
         predicteds = []
         for img in imgs:
             predicteds.append(self.predictProb(img))
+        predicteds = torch.cat(predicteds,dim=0)
         values, class_indexes = torch.max(predicteds, 1)
-        _, image_index = torch.max(values, 1)
+        value, image_index = torch.max(values.unsqueeze(0),1)
         logging.info('predict sucess and extract the best prob bbox')
-        return image_index,class_indexes[image_index],values[image_index]
+        return image_index.item(),class_indexes[image_index].item(),value.item()
 
 class Net(nn.Module):
     def __init__(self):
@@ -130,6 +133,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(16 * 6 * 6, 120)  # 6*6 from image dimension
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 10)
+        self.softMax = nn.Softmax(dim=1)
 
     def forward(self, x):
         # Max pooling over a (2, 2) window
@@ -140,6 +144,7 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
+        x= self.softMax(x)
         return x
 
     def num_flat_features(self, x):

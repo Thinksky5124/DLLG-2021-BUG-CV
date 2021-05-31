@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-30 11:22:37
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-30 15:51:32
+LastEditTime: 2021-05-31 19:40:01
 Description: run function in multi process function
 FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/runProcess.py
 '''
@@ -52,11 +52,12 @@ def readVideoProcess(img_queue,flag_list,recorder_flag):
             success,img=capture.read() # img 就是一帧图片
             if not success:break # 当获取完最后一帧就结束
             
-            logging.info("Process "+str(frameCnt)+" frame")
+            logging.info("Get "+str(frameCnt)+" frame")
             # run program
             img_queue.put(img)
             if recorder_flag == True:
                 video_writer.write(img)
+            logging.info("Finish send "+str(frameCnt)+" frame")
             frameCnt = frameCnt + 1
     
     capture.release()
@@ -64,6 +65,9 @@ def readVideoProcess(img_queue,flag_list,recorder_flag):
         video_writer.release()
 
 def readPictureProcess(img_queue,flag_list,recorder_flag):
+    # wait for other process initial
+    time.sleep(1)
+
     #run
     for picture_number in range(1,6):
         if flag_list[0] == False:
@@ -73,13 +77,13 @@ def readPictureProcess(img_queue,flag_list,recorder_flag):
         # 统计图片数
         frameCnt = 1
 
-        logging.info("Process "+str(frameCnt)+" frame")
+        logging.info("Get "+str(frameCnt)+" frame")
         # run program
         img_queue.put(img)
-        logging.info("Finish Process "+str(frameCnt)+" frame")
         if recorder_flag == True:
             image_write_path = './Debug/picture'+str(picture_number)+'.jpg'
             cv2.imwrite(image_write_path,img)
+        logging.info("Finish send "+str(frameCnt)+" frame")
 
 def serialProcess(serial_conn,flag_list):
 
@@ -99,11 +103,15 @@ def infantryDetetorProcess(img_queue,detetor_conn,flag_list):
         logging.info("enermy color set RED!")
     else:
         logging.error("error enermy color!Use BLUE default")
-        
+    
+    # count process frame
+    frameCnt = 1
     while flag_list[0] == False:
         # TODOs: serial control
         pass
         img = img_queue.get()
+
+        logging.info("Process "+str(frameCnt)+" frame")
         if hit_model == hitModel.armor:
             # hit armor process
             logging.info('hit model set to hit armor')
@@ -116,6 +124,8 @@ def infantryDetetorProcess(img_queue,detetor_conn,flag_list):
             logging.error("hit model set error!Use hit armor default!")
             proposal_ROIs = proposal.proposal_ROIs(enermy_color)
             armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres)
+        logging.info("Finish process "+str(frameCnt)+" frame")
+        frameCnt = frameCnt + 1
 
 def sentryDetetorProcess(img_queue,detetor_conn,flag_list):
     enermy_color = color.BLUE
@@ -132,10 +142,15 @@ def sentryDetetorProcess(img_queue,detetor_conn,flag_list):
         logging.error("error enermy color!Use BLUE default")
     logging.info('hit model set to hit armor')
 
+    # count process frame
+    frameCnt = 1
     while flag_list[0] == False:
         img = img_queue.get()
+        logging.info("Process "+str(frameCnt)+" frame")
         proposal_ROIs = proposal.proposal_ROIs(enermy_color)
         armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres)
+        logging.info("Finish process "+str(frameCnt)+" frame")
+        frameCnt = frameCnt + 1
 
 def heroDetetorProcess(img_queue,detetor_conn,flag_list):
     enermy_color = color.BLUE
@@ -151,7 +166,12 @@ def heroDetetorProcess(img_queue,detetor_conn,flag_list):
         logging.error("error enermy color!Use BLUE default")
     logging.info('hit model set to hit armor')
 
+    # count process frame
+    frameCnt = 1
     while flag_list[0] == False:
         img = img_queue.get()
+        logging.info("Process "+str(frameCnt)+" frame")
         proposal_ROIs = proposal.proposal_ROIs(enermy_color)
         armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres)
+        logging.info("Finish process "+str(frameCnt)+" frame")
+        frameCnt = frameCnt + 1

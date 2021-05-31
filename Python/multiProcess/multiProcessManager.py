@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-30 10:45:42
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-30 15:33:57
+LastEditTime: 2021-05-31 19:23:33
 Description: multi process managr module
 FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/multiProcessManager.py
 '''
@@ -11,7 +11,7 @@ import numpy as np
 import logging
 import multiProcess.runProcess as run
 import multiprocessing
-
+import os
 
 class getImageModel():
     fromCamera = 0
@@ -86,19 +86,25 @@ def multiProcessManager(getImageModel_args,runModel_args,recordmodel_args):
     flag_list.append(process_exit_flag)
     for process in process_list:
         # ! Set up daemon
-        process.setDaemon(True) 
+        process.daemon = True
         # ! Process start
         process.start()
         logging.info(process.name+' Start!')
     
     # ! Process exit manager
+    # use opencv lib to detecting keyboard event
+    # randomByteArray = bytearray(os.urandom(120000))
+    # flatNumpyArray = np.array(randomByteArray)
+    # bgrImage = flatNumpyArray.reshape(100,400,3)
+    # cv2.imshow('show_img',bgrImage)
     try:
         while True:
-            key_num = cv2.waitKey(500)
-            if chr(key_num) == 'q':
+            key_num = cv2.waitKey(10)
+            if key_num == ord('q'):
                 logging.warning('Application press key to Exit!')
                 flag_list[0]=True
                 for process in process_list:
+                    process.terminate()
                     process.join()
                     logging.info(process.name+' Exit!')
                 logging.info('Application Exit!')

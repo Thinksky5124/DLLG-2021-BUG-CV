@@ -29,7 +29,17 @@ pip freeze > requirement.txt
 | 角度解算|解算图片和世界坐标获得枪管移动参数|0%|
 | 串口通信|与下位机进行串口通信|0%|
 
+## 功能说明
+### 兵种视觉代码统一
+- 兵种通过在mian.py设置直接切换
+- 步兵：装甲板检测 + 能量机关击打
+- 哨兵：装甲板检测
+- 英雄：装甲板检测 + 吊射角度解算
 
+### 装甲板检测
+- 未完待续
+  
+  
 # 代码格式规范
 - 尽量不使用全局变量
 - 函数名、变量名、类名命名有含义
@@ -82,21 +92,12 @@ Returns:
 ├── Python - python版本目录
 │   ├── README.md
 │   ├── RMCVenv.yaml - conda环境配置
-│   ├── __pycache__
-│   │   └── run.cpython-38.pyc
 │   ├── armor - 装甲板检测功能
 │   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-38.pyc
-│   │   │   ├── classify.cpython-38.pyc
-│   │   │   └── proposal.cpython-38.pyc
 │   │   ├── classify.py
 │   │   └── proposal.py
 │   ├── config - 参数设置功能
 │   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-38.pyc
-│   │   │   └── config.cpython-38.pyc
 │   │   ├── config.conf
 │   │   ├── config.py
 │   │   └── logging_config.yaml
@@ -104,16 +105,10 @@ Returns:
 │   │   └── __init__.py
 │   ├── logger - 日志功能
 │   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-38.pyc
-│   │   │   └── logger.cpython-38.pyc
 │   │   └── logger.py
 │   ├── main.py - 程序开始入口
 │   ├── multiProcess - 多进程功能
-│   │   ├── __pycache__
-│   │   │   ├── multiProcessManager.cpython-38.pyc
-│   │   │   ├── runFunc.cpython-38.pyc
-│   │   │   └── runProcess.cpython-38.pyc
+│   │   ├── __init__.py
 │   │   ├── multiProcessManager.py
 │   │   ├── runFunc.py
 │   │   └── runProcess.py
@@ -122,9 +117,6 @@ Returns:
 │   │   └── serial.py
 │   ├── shot - 角度解算功能
 │   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-38.pyc
-│   │   │   └── angleSlove.cpython-38.pyc
 │   │   └── angleSlove.py
 │   └── train_classifier.py - 训练网络和采集数据集脚本
 ├── README.md

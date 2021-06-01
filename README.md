@@ -1,9 +1,9 @@
-# 2021-BUG-CV
+# 2021-0BUG-CV
 RoboMaster2021大连理工大学凌BUG战队视觉代码
 
 开发者：
 - Thyssen Wen
-- and so on
+- Bohang Tong
 
 # 开发语言
 - cc 为C++语言

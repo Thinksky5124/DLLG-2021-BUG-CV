@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-30 11:22:37
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-31 19:40:01
+LastEditTime: 2021-06-02 15:12:25
 Description: run function in multi process function
 FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/runProcess.py
 '''
@@ -13,8 +13,9 @@ import time
 import multiprocessing
 import armor.proposal as proposal
 import armor.classify as classify
+import camera.camera as camera
 import config.config as config
-import shot.angleSlove as shot
+import shot.shot as shot
 from multiProcess.runFunc import armorDetetorFunc
 
 class color():
@@ -30,8 +31,37 @@ class hitModel():
 
 
 def readCameraProcess(img_queue,flag_list,recorder_flag):
+    # init camera
+    cameraCapture = camera.Camera()
+    
+    if recorder_flag == True:
+        # 回显视频
+        fps = 32
+        size = (640, 480)
+        video_writer = cv2.VideoWriter('./Debug/outputVideo.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
+        logging.info('model set record data!')
+
+    # 统计帧数
+    frameCnt = 1
+
+    #run
+    success,img = cameraCapture.getfromCamera()
     while flag_list[0] == False:
-        pass
+        if success:
+            logging.info("Get "+str(frameCnt)+" frame")
+            # run program
+            img_queue.put(img)
+            if recorder_flag == True:
+                video_writer.write(img)
+            logging.info("Finish send "+str(frameCnt)+" frame")
+            success,img = cameraCapture.getfromCamera()
+            frameCnt = frameCnt + 1
+            
+    # 释放空间
+    cameraCapture.camera_release()
+    if recorder_flag == True:
+        video_writer.release()
+    
 
 def readVideoProcess(img_queue,flag_list,recorder_flag):
     # 导入数据集
@@ -84,6 +114,7 @@ def readPictureProcess(img_queue,flag_list,recorder_flag):
             image_write_path = './Debug/picture'+str(picture_number)+'.jpg'
             cv2.imwrite(image_write_path,img)
         logging.info("Finish send "+str(frameCnt)+" frame")
+        frameCnt = frameCnt + 1
 
 def serialProcess(serial_conn,flag_list):
 

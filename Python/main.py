@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-05-31 18:49:39
+LastEditTime: 2021-06-02 15:07:21
 Description: python implement main script
 FilePath: /DLLG-2021-BUG-CV/Python/main.py
 '''
@@ -10,7 +10,7 @@ from types import ModuleType
 import cv2
 import numpy as np
 import logging
-import multiProcess.runFunc as run_singal
+import multiProcess.singalProcess as run_singal
 import multiProcess.multiProcessManager as run_multi
 import multiprocessing
 import logger.logger as logger

@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-06-02 15:04:44
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 15:07:04
+LastEditTime: 2021-06-02 20:21:29
 Description: singal process function
 FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/singalProcess.py
 '''
@@ -90,8 +90,7 @@ class sentryDetetor():
 class infantryDetetor():
     def __init__(self):
         # ! must modify
-        # self.enermy_color = color.BLUE
-        self.enermy_color = 2
+        self.enermy_color = color.BLUE
         self.classifier = classify.Classifier()
         self.hitModel = hitModel.armor
         self.hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))

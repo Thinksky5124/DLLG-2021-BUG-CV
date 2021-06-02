@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 15:07:21
+LastEditTime: 2021-06-02 20:18:26
 Description: python implement main script
 FilePath: /DLLG-2021-BUG-CV/Python/main.py
 '''
@@ -14,6 +14,7 @@ import multiProcess.singalProcess as run_singal
 import multiProcess.multiProcessManager as run_multi
 import multiprocessing
 import logger.logger as logger
+import os
         
 class getImageModel():
     fromCamera = 0
@@ -34,11 +35,13 @@ class codeStatus():
     release = 1
 
 if  __name__ == '__main__':
+    # set pwd
+    os.chdir(os.path.dirname(__file__)+'/../')
     # ! set run args
     Getmodel_args = getImageModel.fromVideo
     Runmodel_args = runModel.infantry
     Recordmodel_args = recordModel.no_record
-    CodeStatus_args = codeStatus.release
+    CodeStatus_args = codeStatus.debug
     
     # application run
     # ! watch up and change logging file config if change operater systerm 

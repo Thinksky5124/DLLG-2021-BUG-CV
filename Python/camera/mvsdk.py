@@ -2,13 +2,14 @@
 Author: Thyssen Wen
 Date: 2021-06-02 14:11:30
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 14:14:29
+LastEditTime: 2021-06-02 20:17:02
 Description: mvsdk module from official
 FilePath: /DLLG-2021-BUG-CV/Python/camera/mvsdk.py
 '''
 import platform
 from ctypes import *
 from threading import local
+import os
 
 # 回调函数类型
 CALLBACK_FUNC_TYPE = None
@@ -27,7 +28,7 @@ def _Init():
 		_sdk = windll.MVCAMSDK if is_x86 else windll.MVCAMSDK_X64
 		CALLBACK_FUNC_TYPE = WINFUNCTYPE
 	else:
-		_sdk = cdll.LoadLibrary("libMVSDK.so")
+		_sdk = cdll.LoadLibrary(os.path.dirname(__file__)+"/../../lib/x64/libMVSDK.so")
 		CALLBACK_FUNC_TYPE = CFUNCTYPE
 
 _Init()

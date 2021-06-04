@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-05-30 11:22:37
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 15:12:25
+LastEditTime: 2021-06-04 17:39:21
 Description: run function in multi process function
 FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/runProcess.py
 '''
@@ -16,6 +16,7 @@ import armor.classify as classify
 import camera.camera as camera
 import config.config as config
 import shot.shot as shot
+import serial.serial as serial
 from multiProcess.runFunc import armorDetetorFunc
 
 class color():
@@ -127,7 +128,8 @@ def infantryDetetorProcess(img_queue,detetor_conn,flag_list):
     hit_model = hitModel.armor
     hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
     logging.info('infantry Detector initial success!')
-    # TODOs: serial recept color and hit model
+    serial_port = serial.Serial()
+    enermy_color = serial_port.getEnermyColor()
     if enermy_color == color.BLUE:
         logging.info("enermy color set BLUE!")
     elif enermy_color == color.RED:
@@ -141,7 +143,7 @@ def infantryDetetorProcess(img_queue,detetor_conn,flag_list):
         # TODOs: serial control
         pass
         img = img_queue.get()
-
+        hit_model = serial.getHitModel()
         logging.info("Process "+str(frameCnt)+" frame")
         if hit_model == hitModel.armor:
             # hit armor process
@@ -164,7 +166,8 @@ def sentryDetetorProcess(img_queue,detetor_conn,flag_list):
     hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
     logging.info('sentry Detector initial success!')
 
-    # TODOs: serial recept color and hit model
+    serial_port = serial.Serial()
+    enermy_color = serial_port.getEnermyColor()
     if enermy_color == color.BLUE:
         logging.info("enermy color set BLUE!")
     elif enermy_color == color.RED:
@@ -188,7 +191,8 @@ def heroDetetorProcess(img_queue,detetor_conn,flag_list):
     classifier = classify.Classifier()
     hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
     logging.info('hero Detector initial success!')
-    # TODOs: serial recept color and hit model
+    serial_port = serial.Serial()
+    enermy_color = serial_port.getEnermyColor()
     if enermy_color == color.BLUE:
         logging.info("enermy color set BLUE!")
     elif enermy_color == color.RED:

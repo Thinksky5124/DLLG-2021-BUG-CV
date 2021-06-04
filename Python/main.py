@@ -2,11 +2,10 @@
 Author: Thyssen Wen
 Date: 2021-05-26 17:17:36
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-03 20:37:21
+LastEditTime: 2021-06-03 20:38:29
 Description: python implement main script
 FilePath: /DLLG-2021-BUG-CV/Python/main.py
 '''
-from types import ModuleType
 import cv2
 import numpy as np
 import logging
@@ -41,7 +40,7 @@ if  __name__ == '__main__':
     Getmodel_args = getImageModel.fromVideo
     Runmodel_args = runModel.infantry
     Recordmodel_args = recordModel.no_record
-    CodeStatus_args = codeStatus.release
+    CodeStatus_args = codeStatus.debug
     
     # application run
     # ! watch up and change logging file config if change operater systerm 

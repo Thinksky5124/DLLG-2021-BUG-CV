@@ -2,7 +2,7 @@
 Author: Thyssen Wen
 Date: 2021-06-02 15:04:44
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 20:21:29
+LastEditTime: 2021-06-04 17:39:08
 Description: singal process function
 FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/singalProcess.py
 '''
@@ -16,6 +16,7 @@ import armor.classify as classify
 import config.config as config
 import shot.angleSlove as shot
 import multiProcess.runFunc as run
+import serial.serial as serial
 
 class color():
     """
@@ -47,18 +48,18 @@ class heroDetetor():
         self.enermy_color = color.BLUE
         self.classifier = classify.Classifier()
         self.hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
-        logging.info('hit model set to hit armor')
-        logging.info('hero Detector initial success!')
-    
-    def Deteting(self,img):
-        # TODOs: serial recept color and hit model
+        self.serial = serial.Serial()
+        self.enermy_color = self.serial.getEnermyColor()
         if self.enermy_color == color.BLUE:
             logging.info("enermy color set BLUE!")
         elif self.enermy_color == color.RED:
             logging.info("enermy color set RED!")
         else:
             logging.error("error enermy color!Use BLUE default")
-        
+        logging.info('hit model set to hit armor')
+        logging.info('hero Detector initial success!')
+    
+    def Deteting(self,img):
         proposal_ROIs = proposal.proposal_ROIs(self.enermy_color)
         show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres)
 
@@ -69,19 +70,19 @@ class sentryDetetor():
         self.enermy_color = color.BLUE
         self.classifier = classify.Classifier()
         self.hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
-        logging.info('hit model set to hit armor')
-        logging.info('sentry Detector initial success!')
-        
-    
-    def Deteting(self,img):
-        # TODOs: serial recept color and hit model
+        self.serial = serial.Serial()
+        self.enermy_color = self.serial.getEnermyColor()
         if self.enermy_color == color.BLUE:
             logging.info("enermy color set BLUE!")
         elif self.enermy_color == color.RED:
             logging.info("enermy color set RED!")
         else:
             logging.error("error enermy color!Use BLUE default")
+        logging.info('hit model set to hit armor')
+        logging.info('sentry Detector initial success!')
         
+    
+    def Deteting(self,img):
         proposal_ROIs = proposal.proposal_ROIs(self.enermy_color)
         show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres)
 
@@ -94,17 +95,18 @@ class infantryDetetor():
         self.classifier = classify.Classifier()
         self.hitModel = hitModel.armor
         self.hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
-        logging.info('infantry Detector initial success!')
-    
-    def Deteting(self,img):
-        # TODOs: serial recept color and hit model
+        self.serial = serial.Serial()
+        self.enermy_color = self.serial.getEnermyColor()
         if self.enermy_color == color.BLUE:
             logging.info("enermy color set BLUE!")
         elif self.enermy_color == color.RED:
             logging.info("enermy color set RED!")
         else:
             logging.error("error enermy color!Use BLUE default")
-        
+        logging.info('infantry Detector initial success!')
+    
+    def Deteting(self,img):
+        self.hitModel = self.serial.getHitModel()
         if self.hitModel == hitModel.armor:
             # hit armor process
             logging.info('hit model set to hit armor')

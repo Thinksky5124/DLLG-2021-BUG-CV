@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-06-02 14:11:30
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 20:17:02
+LastEditTime: 2021-06-04 20:59:50
 Description: mvsdk module from official
-FilePath: /DLLG-2021-BUG-CV/Python/camera/mvsdk.py
+FilePath: \DLLG-2021-BUG-CV\Python\camera\mvsdk.py
 '''
 import platform
 from ctypes import *

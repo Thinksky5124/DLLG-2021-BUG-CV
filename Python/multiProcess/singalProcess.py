@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-06-02 15:04:44
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-04 17:39:08
+LastEditTime: 2021-06-04 21:07:31
 Description: singal process function
-FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/singalProcess.py
+FilePath: \DLLG-2021-BUG-CV\Python\multiProcess\singalProcess.py
 '''
 import cv2
 import numpy as np
@@ -17,6 +17,7 @@ import config.config as config
 import shot.angleSlove as shot
 import multiProcess.runFunc as run
 import serial.serial as serial
+import energy.energy as energy
 
 class color():
     """
@@ -61,7 +62,7 @@ class heroDetetor():
     
     def Deteting(self,img):
         proposal_ROIs = proposal.proposal_ROIs(self.enermy_color)
-        show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres)
+        show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres,self.serial)
 
         return show_img
 
@@ -84,7 +85,7 @@ class sentryDetetor():
     
     def Deteting(self,img):
         proposal_ROIs = proposal.proposal_ROIs(self.enermy_color)
-        show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres)
+        show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres,self.serial)
 
         return show_img
 
@@ -97,6 +98,7 @@ class infantryDetetor():
         self.hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
         self.serial = serial.Serial()
         self.enermy_color = self.serial.getEnermyColor()
+        self.energy_detector = energy.Energy(self.enermy_color)
         if self.enermy_color == color.BLUE:
             logging.info("enermy color set BLUE!")
         elif self.enermy_color == color.RED:
@@ -111,10 +113,10 @@ class infantryDetetor():
             # hit armor process
             logging.info('hit model set to hit armor')
             proposal_ROIs = proposal.proposal_ROIs(self.enermy_color)
-            show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres)
+            show_img = run.armorDetetorFunc(img,self.classifier,proposal_ROIs,self.hit_prob_thres,self.serial)
         elif self.hitModel == hitModel.energy:
             logging.info('hit model set to hit energy')
-            pass
+            show_img = run.energyDetetorFunc(img,self.energy_detector,self.serial)
         else:
             logging.error("hit model set error!Use hit armor default!")
             proposal_ROIs = proposal.proposal_ROIs(self.enermy_color)

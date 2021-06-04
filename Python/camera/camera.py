@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-06-02 14:12:30
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 14:43:44
+LastEditTime: 2021-06-04 21:00:01
 Description: camera get image module
-FilePath: /DLLG-2021-BUG-CV/Python/camera/camera.py
+FilePath: \DLLG-2021-BUG-CV\Python\camera\camera.py
 '''
 import cv2
 import numpy as np

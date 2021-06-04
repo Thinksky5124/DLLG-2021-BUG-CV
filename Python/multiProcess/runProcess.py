@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-30 11:22:37
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-04 17:39:21
+LastEditTime: 2021-06-04 21:08:04
 Description: run function in multi process function
-FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/runProcess.py
+FilePath: \DLLG-2021-BUG-CV\Python\multiProcess\runProcess.py
 '''
 import cv2
 import numpy as np
@@ -18,6 +18,8 @@ import config.config as config
 import shot.shot as shot
 import serial.serial as serial
 from multiProcess.runFunc import armorDetetorFunc
+from multiProcess.runFunc import energyDetetorFunc
+import energy.energy as energy
 
 class color():
     """
@@ -127,6 +129,7 @@ def infantryDetetorProcess(img_queue,detetor_conn,flag_list):
     classifier = classify.Classifier()
     hit_model = hitModel.armor
     hit_prob_thres = float(config.getConfig("shot", "hit_prob_thres"))
+    energy_detector = energy.Energy(enermy_color)
     logging.info('infantry Detector initial success!')
     serial_port = serial.Serial()
     enermy_color = serial_port.getEnermyColor()
@@ -149,10 +152,10 @@ def infantryDetetorProcess(img_queue,detetor_conn,flag_list):
             # hit armor process
             logging.info('hit model set to hit armor')
             proposal_ROIs = proposal.proposal_ROIs(enermy_color)
-            armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres)
+            armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres,serial_port)
         elif hit_model == hitModel.energy:
             logging.info('hit model set to hit energy')
-            pass
+            energyDetetorFunc(img,energy_detector,serial_port)
         else:
             logging.error("hit model set error!Use hit armor default!")
             proposal_ROIs = proposal.proposal_ROIs(enermy_color)
@@ -182,7 +185,7 @@ def sentryDetetorProcess(img_queue,detetor_conn,flag_list):
         img = img_queue.get()
         logging.info("Process "+str(frameCnt)+" frame")
         proposal_ROIs = proposal.proposal_ROIs(enermy_color)
-        armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres)
+        armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres,serial_port)
         logging.info("Finish process "+str(frameCnt)+" frame")
         frameCnt = frameCnt + 1
 
@@ -207,6 +210,6 @@ def heroDetetorProcess(img_queue,detetor_conn,flag_list):
         img = img_queue.get()
         logging.info("Process "+str(frameCnt)+" frame")
         proposal_ROIs = proposal.proposal_ROIs(enermy_color)
-        armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres)
+        armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres,serial_port)
         logging.info("Finish process "+str(frameCnt)+" frame")
         frameCnt = frameCnt + 1

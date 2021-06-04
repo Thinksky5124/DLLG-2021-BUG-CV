@@ -2,9 +2,9 @@
 Author: Thyssen Wen
 Date: 2021-05-27 21:42:29
 LastEditors: Thyssen Wen
-LastEditTime: 2021-06-02 15:12:08
+LastEditTime: 2021-06-04 21:06:43
 Description: run singal process script
-FilePath: /DLLG-2021-BUG-CV/Python/multiProcess/runFunc.py
+FilePath: \DLLG-2021-BUG-CV\Python\multiProcess\runFunc.py
 '''
 
 import cv2
@@ -17,7 +17,7 @@ import armor.classify as classify
 import config.config as config
 import shot.shot as shot
 
-def armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres):
+def armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres,serial):
     # proposal ROI
     ROIs = proposal_ROIs.proposal(img)
     # use classifier to detect
@@ -41,6 +41,23 @@ def armorDetetorFunc(img,classifier,proposal_ROIs,hit_prob_thres):
             # draw rectangle in show image
             cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,),2)
             cv2.putText(img,'armor_type:'+str(armor_hit.armorType),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
+
+            # shot command
+            # shot.angleSlove(armor_hit)
+    
+    return img
+
+def energyDetetorFunc(img,detector,serial):
+    # proposal ROI
+    ROIs = detector.foundHitleave(img)
+    # use classifier to detect
+    if len(ROIs) > 1:
+        ROI_imgs = []
+        for bbox in ROIs:
+            [x , y, w, h] = bbox.rectangle
+            # draw rectangle in show image
+            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,),1)
+            
 
             # shot command
             # shot.angleSlove(armor_hit)

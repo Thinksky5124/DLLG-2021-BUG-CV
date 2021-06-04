@@ -1,8 +1,8 @@
 '''
 Author: Thyssen Wen
 Date: 2021-06-04 20:34:30
-LastEditors: Thyssen Wen
-LastEditTime: 2021-06-04 21:09:54
+LastEditors: Tongbh111
+LastEditTime: 2021-06-04 23:41:03
 Description: energy hit module
 FilePath: \DLLG-2021-BUG-CV\Python\energy\energy.py
 '''
